@@ -109,6 +109,10 @@ check_step 1 && step1 && set_step 1
 step2() {
 	check "Change your keyboard layout" &&\
 	dpkg-reconfigure keyboard-configuration
+	check "Do you want to set your timezone?" &&\
+	read -p "Type your timezone: " _MY_TIMEZONE_ &&\
+	timedatectl --set-timezone $_MY_TIMEZONE_
+	timedatectl set-ntp 1
 }
 check_step 2 && step2 && set_step 2
 
@@ -145,8 +149,10 @@ cleanup
 # TODO: install oh my zsh and eventually kali's omz if using this script on parrot os
 
 run_as_vm() {
-	# TODO: maybe check if those lines already exist
-	xset -dpms && xset s off && echo -e "xset -dpms\nxset s off" >> /home/**/.bashrc && set_step 6
+	xset -dpms && xset s off
+	echo -e "xset -dpms\nxset s off" >> /home/*/.bashrc
+	echo -e "xset -dpms\nxset s off" >> /home/*/.zshrc
+	set_step 6
 }
 check_step 6 && check "Is your system running as a virutal machine? And if so, do you want to remove the lock screen timer?" &&\
 run_as_vm
