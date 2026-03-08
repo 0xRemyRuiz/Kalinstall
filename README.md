@@ -1,8 +1,8 @@
-Kallinstall
+Kalinstall
 ===========
 
-A personnal bash script to keep a unified step by step procedure for fresh kali installs.
-Just run the script : `sudo bash ./kallinstall.sh` or `chmod +x ./kallinstall.sh && sudo ./kallinstall.sh`
+A personnal bash script to keep a unified step by step procedure for fresh kali installs (mostly for vms).
+Just run the script : `sudo bash ./kalinstall.sh` or `chmod +x ./kalinstall.sh && sudo ./kalinstall.sh`
 
 How it works
 ------------
