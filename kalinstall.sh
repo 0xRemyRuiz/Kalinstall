@@ -12,6 +12,9 @@ _PREFIX_CHECK="####"
 my_echo() {
 	echo -e "$_KCGREEN$_MSG_1 $1$_KRST"
 }
+my_xconf() {
+	xfconf-query -c "$1" -p "$2" -n -t "$3" -s "$4";
+}
 check() {
 	echo -e -n "$_KCLBLUE$_PREFIX_CHECK $1$_KRST "; read -p "<Y/n>" p
 	# Parse a large number of possibilities to handle some typos
@@ -99,10 +102,15 @@ my_echo "$0 Script is starting..."
 
 step1() {
 	my_echo "Making sure sources are correct"
-	sed -i 's/rolling main.*$/rolling main contrib non-free non-free-firmware/' /etc/apt/sources.list
+	sed -i 's/rolling main.*$/rolling main contrib non-free non-free-firmware/' /etc/apt/sources.list ||
+	sed -i 's/rolling main.*$/rolling main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/kali.sources
+	
 	# try to update or exit the script
-	apt-get update || (my_echo "apt-get update failed, make sure you have internet conenction "; exit)
-	apt-get install apt-transport-https && sed -i 's/http:/https:/' /etc/apt/sources.list
+	apt-get update -y || (my_echo "apt-get update failed, make sure you have internet conenction "; exit)
+	apt-get install apt-transport-https -y
+	
+	sed -i 's/http:/https:/' /etc/apt/sources.list
+	sed -i 's/http:/https:/' /etc/apt/sources.list.d/kali.sources
 }
 check_step 1 && step1 && set_step 1
 
@@ -152,6 +160,19 @@ run_as_vm() {
 	xset -dpms && xset s off
 	echo -e "xset -dpms\nxset s off" >> /home/*/.bashrc
 	echo -e "xset -dpms\nxset s off" >> /home/*/.zshrc
+	
+	# Power manager: no blanking, no DPMS
+	my_xconf xfce4-power-manager /xfce4-power-manager/dpms-enabled bool false
+	my_xconf xfce4-power-manager /xfce4-power-manager/blank-on-ac int 0
+	my_xconf xfce4-power-manager /xfce4-power-manager/dpms-on-ac-sleep int 0
+	my_xconf xfce4-power-manager /xfce4-power-manager/dpms-on-ac-off int 0
+	my_xconf xfce4-power-manager /xfce4-power-manager/lock-screen-suspend-hibernate bool false
+	
+	# Screensaver and lock
+	my_xconf xfce4-screensaver /saver/enabled bool false
+	my_xconf xfce4-screensaver /saver/idle-activation/enabled bool false
+	my_xconf xfce4-screensaver /lock/enabled bool false
+	my_xconf xfce4-screensaver /lock/saver-activation/enabled bool false
 	set_step 6
 }
 check_step 6 && check "Is your system running as a virutal machine? And if so, do you want to remove the lock screen timer?" &&\
